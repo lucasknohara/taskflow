@@ -51,7 +51,7 @@ async function atualizarQuadroService(id_quadro, nome, descricao, id_usuario) {
         throw new AppError("Usuário não existe!", 404);
     }
 
-    const buscarQuadroPorId = await quadrosModel.buscarQuadroPorId(id_quadro);
+    const buscarQuadroPorId = await quadrosModel.buscarQuadroPorId(id_quadro, id_usuario);
 
     if (buscarQuadroPorId === null) {
         throw new AppError("Quadro não existe!", 404);

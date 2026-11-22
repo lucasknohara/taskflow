@@ -38,12 +38,12 @@ async function atualizarQuadro(id_quadro, nome, descricao, id_usuario) {
     return resultado;
 };
 
-async function buscarQuadroPorId(id_quadro) {
+async function buscarQuadroPorId(id_quadro, id_usuario) {
     const [resultado] = await connection.query(`
         SELECT id FROM quadros
-        WHERE id = ?
+        WHERE id = ? AND id_usuario = ?
         LIMIT 1
-    `, [id_quadro]);
+    `, [id_quadro, id_usuario]);
 
     return resultado[0] ?? null;
 };
