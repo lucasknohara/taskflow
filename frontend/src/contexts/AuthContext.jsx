@@ -3,6 +3,26 @@ import { authService } from '../services/auth';
 
 const AuthContext = createContext(null);
 const TOKEN_KEY = 'taskflow.accessToken';
+const USER_KEY = 'taskflow.user';
+
+function readStoredUser() {
+  try {
+    const stored = localStorage.getItem(USER_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
+}
+
+function persistSession({ user, accessToken }) {
+  if (!accessToken) {
+    throw new Error('A API não retornou o JWT. Verifique o retorno da rota de login.');
+  }
+
+  localStorage.setItem(TOKEN_KEY, accessToken);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -10,21 +30,35 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
     setUser(null);
   }, []);
 
   useEffect(() => {
     let active = true;
     const token = localStorage.getItem(TOKEN_KEY);
+
     if (!token) {
       setBooting(false);
       return () => { active = false; };
     }
 
+    // Enquanto ainda não existe endpoint /me, recuperamos os dados básicos
+    // salvos no navegador. A API continua responsável por validar o JWT em cada rota protegida.
+    const storedUser = readStoredUser();
     authService.me()
-      .then((currentUser) => { if (active) setUser(currentUser); })
-      .catch(() => { if (active) logout(); })
-      .finally(() => { if (active) setBooting(false); });
+      .then((currentUser) => {
+        if (!active) return;
+        const sessionUser = currentUser || storedUser;
+        setUser(sessionUser);
+        if (currentUser) localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+      })
+      .catch(() => {
+        if (active) logout();
+      })
+      .finally(() => {
+        if (active) setBooting(false);
+      });
 
     return () => { active = false; };
   }, [logout]);
@@ -37,19 +71,32 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     const result = await authService.login(credentials);
-    localStorage.setItem(TOKEN_KEY, result.accessToken);
+    persistSession(result);
     setUser(result.user);
     return result.user;
   };
 
   const register = async (payload) => {
-    const result = await authService.register(payload);
-    localStorage.setItem(TOKEN_KEY, result.accessToken);
-    setUser(result.user);
-    return result.user;
+    const registration = await authService.register(payload);
+
+    // O cadastro atual retorna apenas id/nome/email. Nesse caso, fazemos login
+    // automaticamente para obter o JWT sem exigir mudanças no back-end agora.
+    const session = registration.accessToken
+      ? registration
+      : await authService.login({ email: payload.email, password: payload.password });
+
+    const authenticatedUser = session.user?.id ? session.user : registration.user;
+    const completeSession = { ...session, user: authenticatedUser };
+    persistSession(completeSession);
+    setUser(authenticatedUser);
+    return authenticatedUser;
   };
 
-  const value = useMemo(() => ({ user, booting, login, register, logout }), [user, booting, logout]);
+  const value = useMemo(
+    () => ({ user, booting, login, register, logout }),
+    [user, booting, logout],
+  );
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
