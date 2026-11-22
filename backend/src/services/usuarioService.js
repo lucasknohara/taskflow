@@ -1,6 +1,8 @@
+const { application } = require("express");
 const AppError = require("../errors/AppError.js");
 const usuarioModel = require("../models/usuarioModel.js");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 async function criarUsuarioService(nome, email, senha) {
     if (typeof nome !== "string" || nome.trim() === "") {
@@ -33,6 +35,47 @@ async function criarUsuarioService(nome, email, senha) {
     };
 };
 
+async function loginUsuarioService(email, senha) {
+    if (typeof email !== "string" || email.trim() === "") {
+        throw new AppError("Email ou senha inválidos!", 400);
+    }
+
+    if (typeof senha !== "string" || senha.trim() === "" || senha.length < 8) {
+        throw new AppError("Email ou senha inválidos!", 400);
+    }
+
+    const emailNormalizado = email.trim().toLowerCase();
+    const usuarioExistente = await usuarioModel.buscarUsuarioPorEmail(emailNormalizado);
+
+    if (usuarioExistente === null) {
+        throw new AppError("Email ou senha inválidos!", 401);
+    }
+
+    const senhaNormalizada = await bcrypt.compare(senha, usuarioExistente.senha);
+
+    if (!senhaNormalizada) {
+        throw new AppError("Email ou senha inválidos!", 401);
+    }
+
+    const token = jwt.sign(
+        {
+            id: usuarioExistente.id
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "1h"
+        }
+    )
+
+    return {
+        id: usuarioExistente.id,
+        nome: usuarioExistente.nome,
+        email: email,
+        token: token
+    };
+};
+
 module.exports = {
     criarUsuarioService,
+    loginUsuarioService,
 };
