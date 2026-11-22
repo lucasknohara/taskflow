@@ -28,8 +28,30 @@ async function listarQuadros(id_usuario) {
     return resultado;
 };
 
+async function atualizarQuadro(id_quadro, nome, descricao, id_usuario) {
+    const [resultado] = await connection.query(`
+        UPDATE quadros
+        SET nome = ?, descricao = ?
+        WHERE id = ? AND id_usuario = ?
+    `, [nome, descricao, id_quadro, id_usuario]);
+
+    return resultado;
+};
+
+async function buscarQuadroPorId(id_quadro) {
+    const [resultado] = await connection.query(`
+        SELECT id FROM quadros
+        WHERE id = ?
+        LIMIT 1
+    `, [id_quadro]);
+
+    return resultado[0] ?? null;
+};
+
 module.exports = {
     criarQuadro,
     buscarUsuarioPorId,
     listarQuadros,
+    atualizarQuadro,
+    buscarQuadroPorId,
 };
