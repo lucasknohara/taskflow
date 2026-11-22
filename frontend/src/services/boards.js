@@ -50,8 +50,19 @@ export const boardsService = {
     if (payload.description !== undefined || payload.descricao !== undefined) {
       body.descricao = (payload.description ?? payload.descricao ?? '').trim();
     }
-    const { data } = await api.patch(`/quadros/${boardId}`, body);
-    return normalizeBoard(unwrapBoard(data));
+
+    const { data } = await api.put(`/quadros/${boardId}`, body);
+    const returnedBoard = unwrapBoard(data);
+    const hasBoardData = returnedBoard && typeof returnedBoard === 'object'
+      && (returnedBoard.id !== undefined || returnedBoard.nome !== undefined || returnedBoard.name !== undefined);
+
+    return hasBoardData
+      ? normalizeBoard(returnedBoard)
+      : {
+          id: boardId,
+          name: body.nome,
+          description: body.descricao,
+        };
   },
 
   async remove(boardId) {
