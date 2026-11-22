@@ -60,16 +60,41 @@ async function atualizarQuadroService(id_quadro, nome, descricao, id_usuario) {
     const resultado = await quadrosModel.atualizarQuadro(id_quadro, nome, descricao, id_usuario);
 
     if (resultado.affectedRows === 0) {
-        throw new AppError("Quadro não encontrado ou você não tem permissão para atualizá-lo!", 404);
+        throw new AppError("Você não tem permissão para atualizá-lo!", 404);
     }
 
     return {
-        message: "quadro atualizado com sucesso!"
+        message: "Quadro atualizado com sucesso!"
     };
+};
+
+async function deletarQuadroService(id_quadro, id_usuario) {
+    const buscarUsuarioPorId = await quadrosModel.buscarUsuarioPorId(id_usuario);
+
+    if (buscarUsuarioPorId === null) {
+        throw new AppError("Usuário não existe!", 404);
+    }
+
+    const buscarQuadroPorId = await quadrosModel.buscarQuadroPorId(id_quadro);
+
+    if (buscarQuadroPorId === null) {
+        throw new AppError("Quadro não encontrado!", 404);
+    }
+
+    const resultado = await quadrosModel.deletarQuadro(id_quadro, id_usuario);
+
+    if (resultado.affectedRows === 0) {
+        throw new AppError("Você não tem permissão para exclui-lo!", 404);
+    }
+
+    return {
+        message: "Quadro excluido com sucesso!"
+    }
 };
 
 module.exports = {
     criarQuadroService,
     listarQuadrosService,
     atualizarQuadroService,
+    deletarQuadroService,
 };

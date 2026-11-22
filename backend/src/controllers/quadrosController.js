@@ -27,8 +27,18 @@ async function atualizarQuadroController(req, res) {
     res.status(200).json(resultado);
 };
 
+async function deletarQuadroController(req, res) {
+    const id_quadro = req.params.id;
+    const id_usuario = req.usuario.id;
+
+    const resultado = await quadrosService.deletarQuadroService(id_quadro, id_usuario);
+
+    res.status(200).json(resultado);
+};
+
 module.exports = {
     criarQuadroController,
     listarQuadrosController,
     atualizarQuadroController,
+    deletarQuadroController,
 };

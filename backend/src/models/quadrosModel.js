@@ -48,10 +48,20 @@ async function buscarQuadroPorId(id_quadro) {
     return resultado[0] ?? null;
 };
 
+async function deletarQuadro(id_quadro, id_usuario) {
+    const [resultado] = await connection.query(`
+        DELETE FROM quadros 
+        WHERE id = ? AND id_usuario = ?
+    `, [id_quadro, id_usuario]);
+
+    return resultado;
+};
+
 module.exports = {
     criarQuadro,
     buscarUsuarioPorId,
     listarQuadros,
     atualizarQuadro,
     buscarQuadroPorId,
+    deletarQuadro,
 };
