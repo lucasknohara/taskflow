@@ -28,6 +28,27 @@ async function criarQuadroService(id_usuario, nome, descricao) {
     };
 };
 
+async function listarQuadrosService(id_usuario) {
+    const idUsuario = Number(id_usuario);
+
+    if (!Number.isInteger(idUsuario) || idUsuario <= 0) {
+        throw new AppError("Id inválido!", 400)
+    }
+
+    const buscarUsuarioPorId = await quadrosModel.buscarUsuarioPorId(idUsuario);
+
+    if (buscarUsuarioPorId === null) {
+        throw new AppError("Usuário não existe!", 404);
+    }
+
+    const resultado = await quadrosModel.listarQuadros(idUsuario);
+
+    return {
+        "quadros": resultado
+    };
+};
+
 module.exports = {
     criarQuadroService,
+    listarQuadrosService,
 };

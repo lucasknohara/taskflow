@@ -19,7 +19,17 @@ async function buscarUsuarioPorId(id_usuario) {
     return resultado[0] ?? null;
 };
 
+async function listarQuadros(id_usuario) {
+    const [resultado] = await connection.query(`
+        SELECT * FROM quadros
+        WHERE id_usuario = ?
+    `, [id_usuario]);
+    
+    return resultado;
+};
+
 module.exports = {
     criarQuadro,
     buscarUsuarioPorId,
+    listarQuadros,
 };
