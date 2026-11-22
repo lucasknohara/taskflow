@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || `${API_URL.replace(/\/+$/, '')}/usuarios`;
 const TOKEN_KEY = 'taskflow.accessToken';
 const USER_KEY = 'taskflow.user';
@@ -39,10 +39,8 @@ function createApiClient(baseURL) {
   return client;
 }
 
-// Cliente das rotas de quadros, listas e cartões.
 const api = createApiClient(API_URL);
 
-// Cliente separado porque a rota atual de autenticação está em /usuarios.
 const authApi = createApiClient(AUTH_API_URL);
 
 export function getErrorMessage(error, fallback = 'Não foi possível concluir a operação.') {

@@ -68,8 +68,20 @@ export default function BoardPage() {
     setLoading(true);
     setLoadError('');
     try {
-      const result = await boardsService.get(boardId);
-      const normalized = { ...result, columns: (result.columns || []).map((column) => ({ ...column, cards: column.cards || [] })).sort((a, b) => a.position - b.position) };
+      const [boardsResult, loadedColumns] = await Promise.all([
+        boardsService.list(),
+        columnsService.list(boardId),
+      ]);
+      const currentBoard = boardsResult.data.find((item) => String(item.id) === String(boardId));
+      if (!currentBoard) {
+        throw new Error('Quadro não encontrado ou você não tem acesso a ele.');
+      }
+      const normalized = {
+        ...currentBoard,
+        columns: loadedColumns
+          .map((column) => ({ ...column, cards: column.cards || [] }))
+          .sort((a, b) => a.position - b.position),
+      };
       setBoard(normalized);
       setColumns(normalized.columns);
       setTitleDraft(normalized.name || '');
@@ -92,8 +104,12 @@ export default function BoardPage() {
   const handleCreateColumn = async (name) => {
     setColumnBusy(true);
     try {
-      const created = await columnsService.create(boardId, { name });
-      setColumns((current) => [...current, { ...created, cards: created.cards || [] }]);
+      const nextPosition = columns.reduce(
+        (highest, column) => Math.max(highest, Number(column.position) || 0),
+        -1,
+      ) + 1;
+      const created = await columnsService.create(boardId, { name, position: nextPosition });
+      setColumns((current) => [...current, { ...created, cards: created.cards || [] }].sort((a, b) => a.position - b.position));
       setNewColumnOpen(false);
       showToast('Lista criada.');
     } catch (error) {
@@ -225,7 +241,10 @@ export default function BoardPage() {
     }
     setSavingTitle(true);
     try {
-      const updated = await boardsService.update(boardId, { name: titleDraft.trim() });
+      const updated = await boardsService.update(boardId, {
+        name: titleDraft.trim(),
+        description: board.description || '',
+      });
       setBoard((current) => ({ ...current, ...updated, name: updated.name || titleDraft.trim() }));
       setTitleDraft(updated.name || titleDraft.trim());
       setEditingTitle(false);
