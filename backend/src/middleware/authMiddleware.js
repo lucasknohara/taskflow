@@ -26,7 +26,6 @@ function autenticarUsuario(req, res, next) {
 
         req.usuario = {
             id: dadosUsuario.id,
-            nome: dadosUsuario.nome
         };
 
         return next();

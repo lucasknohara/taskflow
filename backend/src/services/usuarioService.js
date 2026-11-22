@@ -1,4 +1,3 @@
-const { application } = require("express");
 const AppError = require("../errors/AppError.js");
 const usuarioModel = require("../models/usuarioModel.js");
 const bcrypt = require("bcrypt");
