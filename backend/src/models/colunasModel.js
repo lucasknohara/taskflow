@@ -22,7 +22,7 @@ async function listarColunas(id_quadro) {
 async function atualizarColunas(id_coluna, nome, id_usuario) {
     const [resultado] = await connection.query(`
         UPDATE colunas c
-        JOIN quadros q ON q.id = c.id_quadro
+        INNER JOIN quadros q ON q.id = c.id_quadro
         SET c.nome = ?
         WHERE c.id = ? AND q.id_usuario = ?
     `, [nome, id_coluna, id_usuario]);

@@ -4,6 +4,7 @@ const errorHandler = require("../src/middleware/errorHandler.js");
 const usuarioRouter = require("./routers/usuarioRouter.js");
 const quadrosRouter = require("./routers/quadrosRouter.js");
 const colunasRouter = require("./routers/colunasRouter.js");
+const cartoesRouter = require("./routers/cartoesRouter.js");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/api", usuarioRouter);
 app.use("/api", quadrosRouter);
 app.use("/api", colunasRouter);
+app.use("/api", cartoesRouter);
 
 app.get("/api/teste", (req, res) => {
     return res.status(200).json({
