@@ -69,27 +69,35 @@ async function atualizarQuadroService(id_quadro, nome, descricao, id_usuario) {
 };
 
 async function deletarQuadroService(id_quadro, id_usuario) {
-    const buscarUsuarioPorId = await quadrosModel.buscarUsuarioPorId(id_usuario);
+    try {
+        const buscarUsuarioPorId = await quadrosModel.buscarUsuarioPorId(id_usuario);
 
-    if (buscarUsuarioPorId === null) {
-        throw new AppError("Usuário não existe!", 404);
-    }
+        if (buscarUsuarioPorId === null) {
+            throw new AppError("Usuário não existe!", 404);
+        }
 
-    const buscarQuadroPorId = await quadrosModel.buscarQuadroPorId(id_quadro,id_usuario);
+        const buscarQuadroPorId = await quadrosModel.buscarQuadroPorId(id_quadro,id_usuario);
 
-    if (buscarQuadroPorId === null) {
-        throw new AppError("Quadro não encontrado!", 404);
-    }
+        if (buscarQuadroPorId === null) {
+            throw new AppError("Quadro não encontrado!", 404);
+        }
 
-    const resultado = await quadrosModel.deletarQuadro(id_quadro, id_usuario);
+        const resultado = await quadrosModel.deletarQuadro(id_quadro, id_usuario);
 
-    if (resultado.affectedRows === 0) {
-        throw new AppError("Você não tem permissão para exclui-lo!", 404);
-    }
+        if (resultado.affectedRows === 0) {
+            throw new AppError("Você não tem permissão para exclui-lo!", 404);
+        }
 
-    return {
-        message: "Quadro excluido com sucesso!"
-    }
+        return {
+            message: "Quadro excluido com sucesso!"
+        }
+    } catch (erro) {
+        if (erro.code === "ER_ROW_IS_REFERENCED_2") {
+            throw new AppError("Não é possível excluir uma coluna que possui cartões. Mova ou exclua os cartões primeiro!", 409);
+        }
+    
+        throw erro;
+    };
 };
 
 module.exports = {

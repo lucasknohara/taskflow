@@ -68,20 +68,28 @@ async function atualizarColunasService(id_coluna, nome, id_usuario) {
 };
 
 async function deletarColunaService(id_coluna, id_usuario) {
-    const buscarColunaPorId = await colunasModel.buscarColunaPorId(id_coluna);
+    try {
+        const buscarColunaPorId = await colunasModel.buscarColunaPorId(id_coluna);
 
-    if (buscarColunaPorId === null) {
-        throw new AppError("Coluna não existe!", 404);
-    }
+        if (buscarColunaPorId === null) {
+            throw new AppError("Coluna não existe!", 404);
+        }
 
-    const resultado = await colunasModel.deletarColuna(id_coluna, id_usuario);
+        const resultado = await colunasModel.deletarColuna(id_coluna, id_usuario);
 
-    if (resultado.affectedRows === 0) {
-        throw new AppError("Você não tem permissão para exclui-la!", 404);
-    }
+        if (resultado.affectedRows === 0) {
+            throw new AppError("Você não tem permissão para exclui-la!", 404);
+        }
 
-    return {
-        message: "Coluna excluida com sucesso!"
+        return {
+            message: "Coluna excluida com sucesso!"
+        };
+    } catch (erro) {
+        if (erro.code === "ER_ROW_IS_REFERENCED_2") {
+            throw new AppError("Não é possível excluir um quadro que possui colunas.exclua as colunas primeiro!", 409);
+        }
+
+        throw erro;
     };
 };
 
