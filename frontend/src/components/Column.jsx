@@ -57,7 +57,7 @@ export default function Column({ column, onAddCard, onEditColumn, onDeleteColumn
       <div ref={setNodeRef} className={`min-h-[170px] flex-1 rounded-xl px-1.5 pb-2 pt-1 transition-colors duration-150 ${isOver ? 'bg-[#e9efe9] ring-1 ring-inset ring-[#ccd9cd]' : 'bg-[#eff1ee]/75'}`}>
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
-            {column.cards.map((card) => <SortableTaskCard key={card.id} card={card} columnId={column.id} onClick={() => onOpenCard(card, column.id)} />)}
+            {column.cards.map((card) => <SortableTaskCard key={card.id} card={card} columnId={column.id} onClick={() => onOpenCard(card, column.id)} disabled={disabledActions} />)}
           </div>
         </SortableContext>
         {column.cards.length === 0 && <div className={`grid min-h-[150px] place-items-center rounded-lg border border-dashed text-center transition-colors ${isOver ? 'border-[#9bb39e] text-accent' : 'border-[#dce1db] text-[#a0a8a0]'}`}><span className="text-[11px]">Solte um cartão aqui</span></div>}

@@ -4,16 +4,17 @@ import { CalendarDays, GripVertical } from 'lucide-react';
 
 const priorityLabels = { low: 'Baixa', medium: 'Média', high: 'Alta' };
 
-export default function SortableTaskCard({ card, columnId, onClick }) {
+export default function SortableTaskCard({ card, columnId, onClick, disabled = false }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: String(card.id),
     data: { type: 'card', cardId: card.id, columnId },
+    disabled,
   });
   const style = { transform: CSS.Transform.toString(transform), transition };
   const dueDate = card.dueDate ? new Date(`${card.dueDate}T00:00:00`) : null;
 
   return (
-    <article ref={setNodeRef} style={style} className={`task-card group relative rounded-[10px] border border-[#e6e9e5] bg-white px-3 py-3 shadow-[0_1px_1px_rgba(28,38,29,0.025)] transition-all duration-150 hover:-translate-y-[1px] hover:border-[#d3dcd4] hover:shadow-[0_5px_14px_rgba(26,38,28,0.06)] ${isDragging ? 'z-40 opacity-35 shadow-none' : ''}`}>
+    <article ref={setNodeRef} style={style} className={`task-card group relative rounded-[10px] border border-[#e6e9e5] bg-white px-3 py-3 shadow-[0_1px_1px_rgba(28,38,29,0.025)] transition-all duration-150 hover:-translate-y-[1px] hover:border-[#d3dcd4] hover:shadow-[0_5px_14px_rgba(26,38,28,0.06)] ${isDragging ? 'z-40 opacity-35 shadow-none' : ''} ${disabled ? 'cursor-not-allowed' : ''}`}>
       <div className="flex items-start gap-1.5">
         <button type="button" {...attributes} {...listeners} aria-label={`Arrastar ${card.title}`} className="-ml-1 mt-0.5 cursor-grab rounded p-0.5 text-[#c2c9c2] opacity-0 transition-opacity hover:text-muted active:cursor-grabbing group-hover:opacity-100 focus:opacity-100"><GripVertical size={14} /></button>
         <button type="button" onClick={onClick} className="min-w-0 flex-1 text-left">

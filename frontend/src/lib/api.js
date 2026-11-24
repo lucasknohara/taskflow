@@ -39,8 +39,10 @@ function createApiClient(baseURL) {
   return client;
 }
 
+// Cliente das rotas de quadros, listas e cartões.
 const api = createApiClient(API_URL);
 
+// Cliente separado porque a rota atual de autenticação está em /usuarios.
 const authApi = createApiClient(AUTH_API_URL);
 
 export function getErrorMessage(error, fallback = 'Não foi possível concluir a operação.') {

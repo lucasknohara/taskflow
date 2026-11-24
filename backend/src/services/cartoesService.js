@@ -35,7 +35,7 @@ async function criarCartaoService(id_coluna, titulo, descricao, prioridade, data
     const resultado = await cartoesModel.criarCartao(id_coluna, titulo, descricao, prioridade, data_entrega, posicao);
 
     return {
-        "cartão": {
+        "cartao": {
             titulo: titulo,
             descricao: descricao,
             prioridade: prioridade,
@@ -61,7 +61,7 @@ async function listarCartoesService(id_coluna, id_usuario) {
     const resultado = await cartoesModel.listarCartoes(id_coluna);
 
     return {
-        "cartões": resultado
+        "cartoes": resultado
     };
 };
 

@@ -76,11 +76,13 @@ export default function BoardPage() {
       if (!currentBoard) {
         throw new Error('Quadro não encontrado ou você não tem acesso a ele.');
       }
+      const columnsWithCards = await Promise.all(loadedColumns.map(async (column) => ({
+        ...column,
+        cards: await cardsService.list(column.id),
+      })));
       const normalized = {
         ...currentBoard,
-        columns: loadedColumns
-          .map((column) => ({ ...column, cards: column.cards || [] }))
-          .sort((a, b) => a.position - b.position),
+        columns: columnsWithCards.sort((a, b) => a.position - b.position),
       };
       setBoard(normalized);
       setColumns(normalized.columns);
@@ -153,12 +155,20 @@ export default function BoardPage() {
         const updated = await cardsService.update(taskModal.card.id, payload);
         setColumns((current) => current.map((column) => ({
           ...column,
-          cards: column.cards.map((card) => card.id === taskModal.card.id ? { ...card, ...updated, ...payload } : card),
+          cards: column.cards.map((card) => String(card.id) === String(taskModal.card.id) ? { ...card, ...updated, ...payload } : card),
         })));
         showToast('Cartão atualizado.');
       } else {
         const created = await cardsService.create(taskModal.columnId, payload);
-        setColumns((current) => current.map((column) => column.id === taskModal.columnId ? { ...column, cards: [...column.cards, created] } : column));
+        setColumns((current) => current.map((column) => {
+          if (String(column.id) !== String(taskModal.columnId)) return column;
+          const card = {
+            ...created,
+            columnId: column.id,
+            position: Number.isFinite(Number(created.position)) ? Number(created.position) : column.cards.length,
+          };
+          return { ...column, cards: [...column.cards, card] };
+        }));
         showToast('Cartão criado.');
       }
     } catch (error) {
@@ -173,7 +183,7 @@ export default function BoardPage() {
     setTaskBusy(true);
     try {
       await cardsService.remove(taskModal.card.id);
-      setColumns((current) => current.map((column) => ({ ...column, cards: column.cards.filter((card) => card.id !== taskModal.card.id) })));
+      setColumns((current) => current.map((column) => ({ ...column, cards: column.cards.filter((card) => String(card.id) !== String(taskModal.card.id)) })));
       setTaskModal({ open: false, columnId: null, card: null });
       showToast('Cartão excluído.');
     } catch (error) {
@@ -221,6 +231,15 @@ export default function BoardPage() {
     targetColumn.cards.splice(targetIndex, 0, card);
 
     if (sameColumn && sourceIndex === targetIndex) return;
+
+    next.forEach((column) => {
+      column.cards = column.cards.map((item, index) => ({
+        ...item,
+        columnId: column.id,
+        position: index,
+      }));
+    });
+
     setColumns(next);
     setMoving(true);
     try {
