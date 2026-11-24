@@ -50,7 +50,7 @@ async function atualizarColunasService(id_coluna, nome, id_usuario) {
         throw new AppError("Nome inválido!", 400);
     }
 
-    const buscarColunaPorId = await colunasModel.buscarColunaPorId(id_coluna);
+    const buscarColunaPorId = await colunasModel.buscarColunaPorId(id_coluna, id_usuario);
 
     if (buscarColunaPorId === null) {
         throw new AppError("Coluna não existe!", 404);
@@ -69,7 +69,7 @@ async function atualizarColunasService(id_coluna, nome, id_usuario) {
 
 async function deletarColunaService(id_coluna, id_usuario) {
     try {
-        const buscarColunaPorId = await colunasModel.buscarColunaPorId(id_coluna);
+        const buscarColunaPorId = await colunasModel.buscarColunaPorId(id_coluna, id_usuario);
 
         if (buscarColunaPorId === null) {
             throw new AppError("Coluna não existe!", 404);

@@ -76,7 +76,7 @@ async function deletarQuadroService(id_quadro, id_usuario) {
             throw new AppError("Usuário não existe!", 404);
         }
 
-        const buscarQuadroPorId = await quadrosModel.buscarQuadroPorId(id_quadro,id_usuario);
+        const buscarQuadroPorId = await quadrosModel.buscarQuadroPorId(id_quadro, id_usuario);
 
         if (buscarQuadroPorId === null) {
             throw new AppError("Quadro não encontrado!", 404);

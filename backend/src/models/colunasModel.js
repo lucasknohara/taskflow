@@ -30,12 +30,13 @@ async function atualizarColunas(id_coluna, nome, id_usuario) {
     return resultado;
 };
 
-async function buscarColunaPorId(id_coluna) {
+async function buscarColunaPorId(id_coluna, id_usuario) {
     const [resultado] = await connection.query(`
-        SELECT id FROM colunas
-        WHERE id = ?
+        SELECT c.id FROM colunas c
+        INNER JOIN quadros q ON q.id = c.id_quadro
+        WHERE c.id = ? AND q.id_usuario = ?
         LIMIT 1
-    `, [id_coluna]);
+    `, [id_coluna, id_usuario]);
     
     return resultado[0] ?? null;
 };
