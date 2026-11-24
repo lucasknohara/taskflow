@@ -1,6 +1,6 @@
 import { authApi } from '../lib/api';
 
-const AUTH_ME_PATH = import.meta.env.VITE_AUTH_ME_PATH?.trim();
+const AUTH_ME_PATH = import.meta.env.VITE_AUTH_ME_PATH?.trim() || '/me';
 
 function unwrap(body) {
   return body?.data ?? body ?? {};
@@ -45,10 +45,9 @@ export const authService = {
   },
 
   async me() {
-    // Opcional: configure VITE_AUTH_ME_PATH quando a API tiver uma rota de sessão.
-    if (!AUTH_ME_PATH) return null;
+    // A rota /me consulta o usuário autenticado e revalida a sessão ao recarregar o app.
     const { data } = await authApi.get(AUTH_ME_PATH);
     const payload = unwrap(data);
-    return normalizeUser(payload.user ?? payload);
+    return normalizeUser(payload.usuario ?? payload.user ?? payload.perfil ?? payload);
   },
 };

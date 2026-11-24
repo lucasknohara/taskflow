@@ -34,6 +34,14 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((updates) => {
+    setUser((current) => {
+      const nextUser = { ...(current || {}), ...updates };
+      localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+      return nextUser;
+    });
+  }, []);
+
   useEffect(() => {
     let active = true;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -43,8 +51,7 @@ export function AuthProvider({ children }) {
       return () => { active = false; };
     }
 
-    // Enquanto ainda não existe endpoint /me, recuperamos os dados básicos
-    // salvos no navegador. A API continua responsável por validar o JWT em cada rota protegida.
+    // Consulta /me para validar o token e manter os dados do usuário sincronizados.
     const storedUser = readStoredUser();
     authService.me()
       .then((currentUser) => {
@@ -53,8 +60,17 @@ export function AuthProvider({ children }) {
         setUser(sessionUser);
         if (currentUser) localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
       })
-      .catch(() => {
-        if (active) logout();
+      .catch((error) => {
+          if (!active) return;
+          
+          if (error.response?.status === 401) {
+              logout();
+              return;
+          }
+
+          if (storedUser) {
+              setUser(storedUser);
+          }
       })
       .finally(() => {
         if (active) setBooting(false);
@@ -93,8 +109,8 @@ export function AuthProvider({ children }) {
   };
 
   const value = useMemo(
-    () => ({ user, booting, login, register, logout }),
-    [user, booting, logout],
+    () => ({ user, booting, login, register, logout, updateUser }),
+    [user, booting, logout, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

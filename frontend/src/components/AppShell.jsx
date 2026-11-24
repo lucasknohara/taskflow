@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronsLeft, CircleHelp, Command, FolderKanban, LayoutGrid, LogOut, Settings2 } from 'lucide-react';
+import { ChevronDown, ChevronsLeft, CircleHelp, Command, FolderKanban, LayoutGrid, LogOut, Settings2, UserRound } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Brand from './Brand';
 
@@ -13,7 +13,9 @@ export default function AppShell({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
-  const boardName = location.pathname.startsWith('/boards/') ? 'Quadro' : 'Visão geral';
+  const boardName = location.pathname === '/profile'
+    ? 'Meu perfil'
+    : location.pathname.startsWith('/boards/') ? 'Quadro' : 'Visão geral';
 
   const handleLogout = () => {
     logout();
@@ -53,6 +55,7 @@ export default function AppShell({ children }) {
         </nav>
 
         <div className="mt-auto space-y-1 border-t border-[#e5e9e4] pt-4">
+          <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}><UserRound size={16} strokeWidth={1.8} /><span>Meu perfil</span></NavLink>
           <button type="button" className="nav-link w-full opacity-60" title="Configurações em breve"><Settings2 size={16} strokeWidth={1.8} /><span>Configurações</span></button>
           <button type="button" className="nav-link w-full opacity-60" title="Ajuda em breve"><CircleHelp size={16} strokeWidth={1.8} /><span>Ajuda</span></button>
           <div className="relative mt-3 border-t border-[#e5e9e4] pt-3">
@@ -64,7 +67,7 @@ export default function AppShell({ children }) {
               </span>
               <ChevronDown size={14} className="text-muted" />
             </button>
-            {profileOpen && <div className="absolute bottom-full left-0 right-0 mb-2 rounded-xl border border-line bg-white p-1.5 shadow-panel"><button type="button" onClick={handleLogout} className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium text-[#8b4039] transition-colors hover:bg-[#fbf2f0]"><LogOut size={14} />Sair da conta</button></div>}
+            {profileOpen && <div className="absolute bottom-full left-0 right-0 mb-2 rounded-xl border border-line bg-white p-1.5 shadow-panel"><NavLink to="/profile" onClick={() => setProfileOpen(false)} className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium text-ink transition-colors hover:bg-[#f5f7f4]"><UserRound size={14} />Meu perfil</NavLink><button type="button" onClick={handleLogout} className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium text-[#8b4039] transition-colors hover:bg-[#fbf2f0]"><LogOut size={14} />Sair da conta</button></div>}
           </div>
         </div>
       </aside>
@@ -80,7 +83,7 @@ export default function AppShell({ children }) {
             <div className="hidden items-center gap-2 rounded-lg border border-line bg-[#fafbf9] px-2.5 py-1.5 text-[11px] text-muted sm:flex"><Command size={12} /> <span>Atalhos em breve</span></div>
             <div className="relative lg:hidden">
               <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-label="Abrir menu da conta" className="grid h-8 w-8 place-items-center rounded-full bg-[#e4ece5] text-[10px] font-semibold text-accent">{initials(user?.name)}</button>
-              {profileOpen && <div className="absolute right-0 top-10 z-40 w-44 rounded-xl border border-line bg-white p-1.5 shadow-panel"><p className="truncate px-2.5 py-2 text-[11px] text-muted">{user?.email}</p><button type="button" onClick={handleLogout} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-[#8b4039] hover:bg-[#fbf2f0]"><LogOut size={14} />Sair da conta</button></div>}
+              {profileOpen && <div className="absolute right-0 top-10 z-40 w-48 rounded-xl border border-line bg-white p-1.5 shadow-panel"><p className="truncate px-2.5 py-2 text-[11px] text-muted">{user?.email}</p><NavLink to="/profile" onClick={() => setProfileOpen(false)} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink hover:bg-[#f5f7f4]"><UserRound size={14} />Meu perfil</NavLink><button type="button" onClick={handleLogout} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-[#8b4039] hover:bg-[#fbf2f0]"><LogOut size={14} />Sair da conta</button></div>}
             </div>
           </div>
         </header>

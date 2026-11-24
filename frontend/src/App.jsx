@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import BoardsPage from './pages/BoardsPage';
 import BoardPage from './pages/BoardPage';
+import ProfilePage from './pages/ProfilePage';
 
 function FullPageLoading() {
   return <div className="grid min-h-screen place-items-center bg-canvas"><div className="flex items-center gap-2.5"><span className="h-2 w-2 animate-pulse rounded-full bg-accent" /><span className="text-xs font-medium text-muted">Preparando seu espaço...</span></div></div>;
@@ -25,6 +26,7 @@ export default function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/boards" element={<Protected><BoardsPage /></Protected>} />
       <Route path="/boards/:boardId" element={<Protected><BoardPage /></Protected>} />
+      <Route path="/profile" element={<Protected><ProfilePage /></Protected>} />
       <Route path="*" element={<Navigate to="/boards" replace />} />
     </Routes>
   );

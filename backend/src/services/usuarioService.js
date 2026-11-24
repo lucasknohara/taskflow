@@ -74,7 +74,46 @@ async function loginUsuarioService(email, senha) {
     };
 };
 
+async function buscarUsuarioPorIdService(id_usuario) {
+    const resultado = await usuarioModel.buscarUsuarioPorId(id_usuario);
+
+    if (resultado === null) {
+        throw new AppError("Não foi possivel encontrar usuário!", 404);
+    }
+
+    return  {
+        "usuario": {
+          "nome": resultado.nome,
+          "email": resultado.email
+        }
+    }
+};
+
+async function atualizarUsuarioService(id_usuario, nome, email) {
+    const buscarUsuarioPorId = await usuarioModel.buscarUsuarioPorId(id_usuario);
+
+    if (buscarUsuarioPorId === null) {
+        throw new AppError("Não foi possivel encontrar usuário!", 404);
+    }
+    
+    if (typeof nome !== "string" || nome.trim() === "") {
+        throw new AppError("Nome inválido!", 400);
+    }
+
+    if (typeof email !== "string" || email.trim() === "") {
+        throw new AppError("Email inválido!", 400);
+    }
+
+    const resultado = usuarioModel.atualizarUsuario(id_usuario, nome, email);
+
+    return {
+        message: "Usuário atualizado com sucesso!"
+    };
+};
+
 module.exports = {
     criarUsuarioService,
     loginUsuarioService,
+    buscarUsuarioPorIdService,
+    atualizarUsuarioService,
 };

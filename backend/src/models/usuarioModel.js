@@ -19,7 +19,29 @@ async function buscarUsuarioPorEmail(email) {
     return resultado[0] ?? null;
 };
 
+async function buscarUsuarioPorId(id_usuario) {
+    const [resultado] = await connection.query(`
+        SELECT nome, email FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    `, [id_usuario]);
+
+    return resultado[0] ?? null;
+};
+
+async function atualizarUsuario(id_usuario, nome, email) {
+    const [resultado] = await connection.query(`
+        UPDATE usuarios
+        SET nome = ?, email = ?
+        WHERE id = ?
+    `, [nome, email, id_usuario]);
+
+    return resultado;
+};
+
 module.exports = {
     criarUsuario,
     buscarUsuarioPorEmail,
+    buscarUsuarioPorId,
+    atualizarUsuario,
 };
